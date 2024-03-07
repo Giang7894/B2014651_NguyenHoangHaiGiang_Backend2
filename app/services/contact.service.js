@@ -1,4 +1,4 @@
-const {ObjectID} = require("mongodb");
+const {ObjectId} = require("mongodb");
 
 class ContactService{
     constructor(client) {
@@ -13,7 +13,7 @@ class ContactService{
             favorite: payload.favorite,
         };
 
-        Objects.keys(contact).forEach(
+        Object.keys(contact).forEach(
             (key) => contact[key] === undefined && delete contact[key]
         );
         return contact;
@@ -23,10 +23,10 @@ class ContactService{
         const contact = this.extractContactData(payload);
         const result= await this.Contact.findOneAndUpdate(
             contact,
-            { $set: { favorite: contact.favorite===true}},
+            { $set: { favorite: contact.favorite=true}},
             { returnDocument: "after", upsert: true}
         );
-        return result.value;
+        return result;
     }
 
     async find(filter) {
@@ -42,37 +42,39 @@ class ContactService{
     
     async findByID(id) {
         return await this.Contact.findOne({
-            _id: ObjectID.isvalid(id) ? new ObjectID(id):null,
+            _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
         });
     }
     
     async update(id,payload){
         const filter ={
-            _id: ObjectID.isvalid(id) ? new ObjectID(id):null,
+            _id: ObjectId.isValid(id) ? new  ObjectId(id) : null,
         };
+
         const update=this.extractContactData(payload);
+
         const result= await this.Contact.findOneAndUpdate(
             filter,
             { $set: update},
             { $returnDocument: "after"}
         );
-        return result.value;
+        return result;
     }
 
     async delete(id){
         const result=await this.Contact.findOneAndDelete({
-            _id: ObjectID.isvalid(id) ? ObjectID(id):null,
+            _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
         });
-        return result.value;
+        return result;
     }
 
     async findFavorite(){
-        return await this.find({favortie: true});
+        return await this.Contact.find({favortie: true});
     }
 
     async deleteAll(){
         const result=await this.Contact.deleteMany({});
-        return result.deletedCount;
+        return result;
     }
 }
 
